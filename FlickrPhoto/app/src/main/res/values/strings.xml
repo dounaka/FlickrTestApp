@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Flickr Photo</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="txt_login">Login</string>
+    <string name="txt_enter_tag">Write a tagname</string>
+    <string name="txt_search">Search</string>
+    <string name="title_activity_home">Photo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_photo_detail">PhotoDetailActivity</string>
+</resources>
