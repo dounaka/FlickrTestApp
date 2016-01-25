@@ -50,8 +50,7 @@ public class PhotoListFragment extends Fragment {
         photoAdater.itemClickListener = new EntityRecyclerAdapter.ItemClickListener() {
             @Override
             public void onClick(View v) {
-                PhotoItemView photoView = (PhotoItemView)v;
-                mListener.onPhotoClick(photoView.entity.getUid());
+                mListener.onPhotoClick((PhotoItemView)v);
             }
         };
         mRecyclerViewPhoto.setAdapter(photoAdater);
@@ -87,6 +86,6 @@ public class PhotoListFragment extends Fragment {
 
     public interface OnPhotoClickListener {
         // TODO: Update argument type and name
-        void onPhotoClick(final String photouid);
+        void onPhotoClick( PhotoItemView photoView);
     }
 }

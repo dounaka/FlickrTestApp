@@ -9,10 +9,11 @@ import com.activeandroid.query.Select;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 @Table(name = "photo")
-public class PhotoDb extends Model {
+public class PhotoDb extends Model implements Serializable {
 
     @Column(name = "uid")
     private String uid;

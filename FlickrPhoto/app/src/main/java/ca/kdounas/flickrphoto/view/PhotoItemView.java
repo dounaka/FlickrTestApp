@@ -14,7 +14,7 @@ import ca.kdounas.flickrphoto.persistance.PhotoDb;
  */
 public class PhotoItemView extends EntityView<PhotoDb> {
 
-    private ImageView mImgView;
+    public ImageView imageView;
     private TextView mTxtCaption, mTxtUsername;
 
 
@@ -29,7 +29,7 @@ public class PhotoItemView extends EntityView<PhotoDb> {
 
     @Override
     public void bindControls(Context ctx) {
-        mImgView = (ImageView) findViewById(R.id.img_photo);
+        imageView = (ImageView) findViewById(R.id.img_photo);
         mTxtCaption = (TextView) findViewById(R.id.txt_image_caption);
         mTxtUsername = (TextView) findViewById(R.id.txt_user_name);
     }
@@ -39,6 +39,6 @@ public class PhotoItemView extends EntityView<PhotoDb> {
         ImageLoader imageLoader = ImageLoader.getInstance();
         mTxtCaption.setText(photo.getName());
         mTxtUsername.setText(photo.getOwner());
-        imageLoader.displayImage(photo.getUrl(), mImgView);
+        imageLoader.displayImage(photo.getUrl(), imageView);
     }
 }

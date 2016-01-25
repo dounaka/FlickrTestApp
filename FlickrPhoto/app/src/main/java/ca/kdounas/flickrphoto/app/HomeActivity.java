@@ -1,13 +1,9 @@
 package ca.kdounas.flickrphoto.app;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -17,18 +13,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.SearchView;
 
 import ca.kdounas.flickrphoto.R;
 import ca.kdounas.flickrphoto.app.fragment.PhotoListFragment;
 import ca.kdounas.flickrphoto.app.fragment.SearchByTagFragment;
 import ca.kdounas.flickrphoto.persistance.TagDb;
+import ca.kdounas.flickrphoto.view.PhotoItemView;
 
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SearchByTagFragment.OnNewResultListener, PhotoListFragment.OnPhotoClickListener {
 
+
+    private static final int CODE_RETURN_PHOTO_DETAIL = 124;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +46,9 @@ public class HomeActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchByTagFragment()).commit();
         }
+
+        getSupportActionBar().setTitle("Search ...");
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -104,7 +101,8 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onNewResults(final String tagname) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PhotoListFragment()).commit();
+        getSupportActionBar().setTitle("Search '" + tagname +"'");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PhotoListFragment()).commit();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -114,13 +112,11 @@ public class HomeActivity extends AppCompatActivity
         }).start();
 
 
+
+
+
     }
 
-    @Nullable
-    @Override
-    public ActionBar getSupportActionBar() {
-        return super.getSupportActionBar();
-    }
 
     @Override
     public void onBackPressed() {
@@ -128,19 +124,18 @@ public class HomeActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            getSupportActionBar().setTitle("Search ...");
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchByTagFragment()).commit();
         }
     }
 
-
     @Override
-    public void onPhotoClick(final String photouid) {
-
-        Intent intent = new Intent(this, PhotoDetailActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(PhotoDetailActivity.PARAM_PHOTO_UID, photouid); //Your id
-        intent.putExtras(bundle); //Put your id to your next Intent
-        startActivity(intent);
+    public void onPhotoClick(final PhotoItemView photoView) {
+        final Intent intentPhotoDetail = new Intent(this, PhotoDetailActivity.class);
+        final Bundle bundle = new Bundle();
+        bundle.putInt(PhotoDetailActivity.PARAM_PHOTO_INDEX, photoView.position);
+        intentPhotoDetail.putExtras(bundle);
+        startActivity(intentPhotoDetail);
 
     }
 
