@@ -146,14 +146,10 @@ public class PhotoDetailActivity extends AppCompatActivity {
         ZoomableView zoomableView;
 
         public ImageFragment() {
-
             super();
         }
 
-        ImageFragment(PhotoDb foto) {
-            super();
-            photo = foto;
-        }
+
 
         @Override
         public void onSaveInstanceState(Bundle outState) {
@@ -193,7 +189,9 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return new ImageFragment(photos.get(position));
+            ImageFragment imgFragment = new ImageFragment();
+            imgFragment.photo = photos.get(position);
+            return imgFragment;
         }
 
         @Override
