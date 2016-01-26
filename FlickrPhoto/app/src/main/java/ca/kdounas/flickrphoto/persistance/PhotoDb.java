@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Table(name = "photo")
-public class PhotoDb extends Model implements Serializable {
+public class PhotoDb extends Model implements Photo {
 
     @Column(name = "uid")
     protected String uid;
@@ -65,19 +65,21 @@ public class PhotoDb extends Model implements Serializable {
         new Delete().from(PhotoDb.class).execute();
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
-
-
+    @Override
     public String getOwner() {
         return owner;
     }
 
+    @Override
     public String getUid() {
         return uid;
     }
 
+    @Override
     public String getName() {
         return name;
     }

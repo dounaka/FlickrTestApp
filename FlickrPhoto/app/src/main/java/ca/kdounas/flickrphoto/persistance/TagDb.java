@@ -6,6 +6,7 @@ import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dounaka on 1/24/16.
@@ -32,8 +33,8 @@ public class TagDb extends Model {
         this.tag = tg;
     }
 
-    public static ArrayList<PhotoDb> getLastSearches() {
-        return new Select().from(TagDb.class).orderBy("id DESC").limit("20").execute();
+    public static List<TagDb> getLastSearches() {
+        return new Select().from(TagDb.class).orderBy("id DESC").limit("50").execute();
     }
 
     public String getTag() {

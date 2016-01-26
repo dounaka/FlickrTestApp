@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.kdounas.flickrphoto.R;
+import ca.kdounas.flickrphoto.persistance.FavoriteDb;
 import ca.kdounas.flickrphoto.persistance.PhotoDb;
 import ca.kdounas.flickrphoto.view.ZoomOutPagerTransformer;
 import ca.kdounas.flickrphoto.view.ZoomableView;
@@ -91,19 +92,15 @@ public class PhotoDetailActivity extends AppCompatActivity {
         final PhotoDb photo = mAdapter.photos.get(currentPage);
         final int total = mAdapter.photos.size();
         mTxtCount.setText((currentPage + 1 + " / " + total));
-        boolean odd = (currentPage % 2) == 0;
-        mMenuAddFavorite.setVisible(odd);
-        mMenuRemoveFavorite.setVisible(!odd);
         mCurrentPhotoIndex = currentPage;
         getSupportActionBar().setTitle(photo.getName());
-
         notifyCurrent(mCurrentPhotoIndex);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mLocalBroadcastManager==null)
+        if (mLocalBroadcastManager == null)
             mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         mAdapter.photos.clear();
         mAdapter.notifyDataSetChanged();
@@ -142,6 +139,8 @@ public class PhotoDetailActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_photo_detail, menu);
         mMenuAddFavorite = menu.findItem(R.id.action_add_favorite);
         mMenuRemoveFavorite = menu.findItem(R.id.action_remove_favorite);
+        mMenuRemoveFavorite.setVisible(false);
+
         return true;
     }
 
@@ -152,8 +151,11 @@ public class PhotoDetailActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_add_favorite) {
+            addToFavorite();
             return true;
         } else if (id == R.id.action_remove_favorite) {
+
+
             return true;
         } else if (id == R.id.action_delete) {
             deleteCurrentPhoto();
@@ -162,6 +164,18 @@ public class PhotoDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void addToFavorite() {
+        final PhotoDb photo = mAdapter.photos.get(mCurrentPhotoIndex);
+        if (FavoriteDb.findByUid(photo.getUid()) != null)
+
+            return;
+
+        mMenuAddFavorite.setVisible(false);
+        mMenuRemoveFavorite.setVisible(true);
+        FavoriteDb favorite = new FavoriteDb();
+        favorite.map(photo);
+        favorite.save();
+    }
 
     private void deleteCurrentPhoto() {
         // mPager.removeAllViews();

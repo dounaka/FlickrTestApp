@@ -1,23 +1,20 @@
 package ca.kdounas.flickrphoto.app;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 
 import ca.kdounas.flickrphoto.R;
+import ca.kdounas.flickrphoto.app.fragment.FavoriteListFragment;
 import ca.kdounas.flickrphoto.app.fragment.PhotoListFragment;
 import ca.kdounas.flickrphoto.app.fragment.SearchByTagFragment;
+import ca.kdounas.flickrphoto.app.fragment.TagListFragment;
 import ca.kdounas.flickrphoto.persistance.TagDb;
 import ca.kdounas.flickrphoto.view.PhotoItemView;
 
@@ -46,7 +43,7 @@ public class HomeActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchByTagFragment()).commit();
         }
 
-        getSupportActionBar().setTitle("Search ...");
+        getSupportActionBar().setTitle("Search");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -55,18 +52,12 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_search) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchByTagFragment()).commit();
+        } else if (id == R.id.nav_favorite) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FavoriteListFragment()).commit();
+        } else if (id == R.id.nav_history) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new TagListFragment()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -113,7 +104,6 @@ public class HomeActivity extends AppCompatActivity
         super.onPostResume();
 
     }
-
 
 
 }

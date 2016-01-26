@@ -39,8 +39,8 @@ public class PhotoListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View mainView = inflater.inflate(R.layout.fragment_photo_list, container, false);
-        mRecyclerViewPhoto = (RecyclerView) mainView.findViewById(R.id.recyclerviewphoto);
+        final View mainView = inflater.inflate(R.layout.fragment_recycler_view, container, false);
+        mRecyclerViewPhoto = (RecyclerView) mainView.findViewById(R.id.recyclerview);
         mRecyclerViewPhoto.setHasFixedSize(true);
         mRecyclerViewPhoto.setLayoutManager(new LinearLayoutManager(getActivity()));
         return mainView;
@@ -53,7 +53,7 @@ public class PhotoListFragment extends Fragment {
             if (itemToScroll != -1) {
                 mPhotoAdater.notifyDataSetChanged();
                 mPhotoAdater.positionCurrent = itemToScroll;
-                mRecyclerViewPhoto.scrollToPosition(itemToScroll);
+                mRecyclerViewPhoto.smoothScrollToPosition(itemToScroll);
                 itemToScroll = -1;
             }
             return;

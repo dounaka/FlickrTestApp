@@ -5,14 +5,14 @@
 
     <item
         android:id="@+id/action_add_favorite"
-        android:icon="@drawable/ic_favorite_border_accent"
+        android:icon="@drawable/ic_favorite_accent"
         android:orderInCategory="90"
         android:title="@string/action_add_favorite"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_remove_favorite"
-        android:icon="@drawable/ic_favorite_accent"
+        android:icon="@drawable/ic_favorite_border_accent"
         android:orderInCategory="90"
         android:title="@string/action_remove_favorite"
         app:showAsAction="ifRoom" />
