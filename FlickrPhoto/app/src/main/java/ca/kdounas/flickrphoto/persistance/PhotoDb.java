@@ -10,24 +10,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "photo")
 public class PhotoDb extends Model implements Serializable {
 
     @Column(name = "uid")
-    private String uid;
+    protected String uid;
 
 
     @Column(name = "name")
-    private String name;
+    protected String name;
 
     @Column(name = "owner")
-    private String owner;
+    protected String owner;
 
 
     @Column(name = "url")
-    private String url;
+    protected String url;
 
     public PhotoDb() {
         super();
@@ -51,8 +51,13 @@ public class PhotoDb extends Model implements Serializable {
         return new Select().from(PhotoDb.class).where("uid = ?", uid).executeSingle();
     }
 
-    public static ArrayList<PhotoDb> recentItems() {
-        return new Select().from(PhotoDb.class).orderBy("id DESC").limit("300").execute();
+    public static List<PhotoDb> recentItems() {
+        return new Select().from(PhotoDb.class).orderBy("id DESC").limit("100").execute();
+    }
+
+
+    public static void deleteByUid(String uid) {
+        new Delete().from(PhotoDb.class).where("uid = ?", uid).execute();
     }
 
 

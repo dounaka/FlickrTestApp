@@ -17,6 +17,8 @@ public class TagDb extends Model {
 
     @Column(name = "tag")
     private String tag;
+
+
     @Column(name = "searchon")
     private Long searchOn = System.currentTimeMillis();
 

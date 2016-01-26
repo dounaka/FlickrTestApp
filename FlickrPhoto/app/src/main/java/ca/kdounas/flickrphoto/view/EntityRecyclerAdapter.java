@@ -4,13 +4,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Generic adapter
  */
 public abstract class EntityRecyclerAdapter<ET> extends RecyclerView.Adapter<EntityRecyclerAdapter.EntityViewHolder> implements View.OnClickListener {
+
     public final List<ET> entities;
+    public int positionCurrent = -1;
     public ItemClickListener itemClickListener;
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -39,6 +42,12 @@ public abstract class EntityRecyclerAdapter<ET> extends RecyclerView.Adapter<Ent
     public void onBindViewHolder(EntityViewHolder holder, int pos) {
         holder.entityView.show(entities.get(pos));
         holder.entityView.position = (pos);
+        if (positionCurrent != -1) {
+            if (holder.entityView.position == positionCurrent)
+                holder.entityView.select();
+            else
+                holder.entityView.unselect();
+        }
     }
 
     @Override
@@ -53,7 +62,6 @@ public abstract class EntityRecyclerAdapter<ET> extends RecyclerView.Adapter<Ent
     // Provide a reference to the views for each data item Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public static class EntityViewHolder extends RecyclerView.ViewHolder {
-
         public EntityView entityView;
 
         public EntityViewHolder(EntityView ev, View.OnClickListener clicklistener) {

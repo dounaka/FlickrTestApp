@@ -21,8 +21,6 @@ public class LoginActivity extends OAuthLoginActivity<FlickrClient> {
 
     }
 
-
-
     @Override
     public void onLoginSuccess() {
         Intent i = new Intent(this, HomeActivity.class);

@@ -1,10 +1,12 @@
 package ca.kdounas.flickrphoto.app;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,7 +30,12 @@ import ca.kdounas.flickrphoto.view.ZoomableView;
 
 public class PhotoDetailActivity extends AppCompatActivity {
     public static final String PARAM_PHOTO_INDEX = "photo.index";
-    int photoIndex;
+    public static final String BROADCAST_ACTION_PHOTO_DELETE = "photo.delete";
+    public static final String BROADCAST_ACTION_PHOTO_CURRENT = "photo.current";
+    public static final String BROADCAST_PARAM_PHOTO_INDEX = "photo.index";
+    LocalBroadcastManager mLocalBroadcastManager;
+    private int mCurrentPhotoIndex;
+    private MenuItem mMenuAddFavorite, mMenuRemoveFavorite;
     private ViewPager mPager;
     private ImagePagerAdapter mAdapter;
     private TextView mTxtCount;
@@ -52,39 +59,54 @@ public class PhotoDetailActivity extends AppCompatActivity {
                 });
         mAdapter = new ImagePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mAdapter);
-
-
         if (savedInstanceState != null)
-            photoIndex = savedInstanceState.getInt(PARAM_PHOTO_INDEX, 0);
+            mCurrentPhotoIndex = savedInstanceState.getInt(PARAM_PHOTO_INDEX, 0);
         else
-            photoIndex = this.getIntent().getIntExtra(PARAM_PHOTO_INDEX, 0);
+            mCurrentPhotoIndex = this.getIntent().getIntExtra(PARAM_PHOTO_INDEX, 0);
+    }
 
+    private void notifyDelete(int index) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_ACTION_PHOTO_DELETE);
+        intent.putExtra(BROADCAST_PARAM_PHOTO_INDEX, index);
+        mLocalBroadcastManager.sendBroadcast(intent);
 
+    }
+
+    private void notifyCurrent(int index) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_ACTION_PHOTO_CURRENT);
+        intent.putExtra(BROADCAST_PARAM_PHOTO_INDEX, index);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(PARAM_PHOTO_INDEX, this.photoIndex);
+        outState.putInt(PARAM_PHOTO_INDEX, this.mCurrentPhotoIndex);
     }
 
 
     private void showPage(final int currentPage) {
+        final PhotoDb photo = mAdapter.photos.get(currentPage);
         final int total = mAdapter.photos.size();
         mTxtCount.setText((currentPage + 1 + " / " + total));
+        boolean odd = (currentPage % 2) == 0;
+        mMenuAddFavorite.setVisible(odd);
+        mMenuRemoveFavorite.setVisible(!odd);
+        mCurrentPhotoIndex = currentPage;
+        getSupportActionBar().setTitle(photo.getName());
 
-        photoIndex = currentPage;
-        getSupportActionBar().setTitle(mAdapter.photos.get(currentPage).getName());
+        notifyCurrent(mCurrentPhotoIndex);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        if (mLocalBroadcastManager==null)
+            mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         mAdapter.photos.clear();
         mAdapter.notifyDataSetChanged();
-
-
         (new AsyncTask<Void, Void, List<PhotoDb>>() {
             @Override
             protected List<PhotoDb> doInBackground(Void... params) {
@@ -96,14 +118,12 @@ public class PhotoDetailActivity extends AppCompatActivity {
                 mPager.setVisibility(View.INVISIBLE);
                 mAdapter.photos.addAll(photos);
                 mAdapter.notifyDataSetChanged();
-
-                mPager.setCurrentItem(photoIndex);
-                showPage(photoIndex);
+                mPager.setCurrentItem(mCurrentPhotoIndex);
+                showPage(mCurrentPhotoIndex);
                 mPager.setVisibility(View.VISIBLE);
             }
         }).execute();
     }
-
 
     public void onPrevious(View view) {
         if (mPager.getCurrentItem() > 0)
@@ -112,16 +132,16 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
     public void onNext(View view) {
         final int next = mPager.getCurrentItem() + 1;
-        if (next <= mAdapter.photos.size())
+        if (next < mAdapter.photos.size())
             mPager.setCurrentItem(next);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home, menu);
-
-
+        inflater.inflate(R.menu.menu_photo_detail, menu);
+        mMenuAddFavorite = menu.findItem(R.id.action_add_favorite);
+        mMenuRemoveFavorite = menu.findItem(R.id.action_remove_favorite);
         return true;
     }
 
@@ -131,13 +151,50 @@ public class PhotoDetailActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_add_favorite) {
+            return true;
+        } else if (id == R.id.action_remove_favorite) {
+            return true;
+        } else if (id == R.id.action_delete) {
+            deleteCurrentPhoto();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void deleteCurrentPhoto() {
+        // mPager.removeAllViews();
+
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                final PhotoDb fotoToDelete = mAdapter.photos.get(mCurrentPhotoIndex);
+                fotoToDelete.deleteByUid(fotoToDelete.getUid());
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                final int nextIndex;
+                if (mCurrentPhotoIndex == mAdapter.photos.size())
+                    nextIndex = mCurrentPhotoIndex - 1;
+                else
+                    nextIndex = mCurrentPhotoIndex;
+                mAdapter.photos.remove(mCurrentPhotoIndex);
+                ArrayList<PhotoDb> backupPhotos = new ArrayList<>(); // save a data heavy read!
+                backupPhotos.addAll(mAdapter.photos);
+                // force a new adapter, this doesnt work with ViewPager -> mAdapter.notifyDataSetChanged();
+                mAdapter = new ImagePagerAdapter(getSupportFragmentManager());
+                mAdapter.photos.addAll(backupPhotos);
+                mPager.setAdapter(mAdapter);
+                mPager.setCurrentItem(nextIndex);
+                showPage(nextIndex);
+                notifyDelete(mCurrentPhotoIndex);
+            }
+        }.execute();
     }
 
     public static class ImageFragment extends Fragment {
@@ -148,8 +205,6 @@ public class PhotoDetailActivity extends AppCompatActivity {
         public ImageFragment() {
             super();
         }
-
-
 
         @Override
         public void onSaveInstanceState(Bundle outState) {
@@ -167,13 +222,17 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            zoomableView = new ZoomableView(getContext());
+            zoomableView = new ZoomableView(getActivity());
             return zoomableView;
         }
 
         @Override
         public void onResume() {
             super.onResume();
+            showPhoto();
+        }
+
+        public void showPhoto() {
             ImageLoader.getInstance().displayImage(photo.getUrl(), zoomableView);
         }
     }
@@ -181,7 +240,6 @@ public class PhotoDetailActivity extends AppCompatActivity {
     private class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
         final ArrayList<PhotoDb> photos = new ArrayList<>();
-
 
         public ImagePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -198,5 +256,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         public int getCount() {
             return photos.size();
         }
+
+
     }
 }

@@ -49,5 +49,12 @@ public abstract class EntityView<T> extends FrameLayout {
         showEntity(this.entity);
     }
 
-    protected abstract void showEntity(T entity);
+
+    public void select() {
+        setBackgroundColor(0x80FFFF99);
+    }
+    public void unselect() {
+        setBackgroundColor(0xFFFFFFFF);
+    }
+     protected abstract void showEntity(T entity);
 }

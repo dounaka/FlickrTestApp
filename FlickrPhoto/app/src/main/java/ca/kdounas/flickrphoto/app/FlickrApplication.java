@@ -14,7 +14,6 @@ import ca.kdounas.flickrphoto.client.FlickrClient;
 
 public class FlickrApplication extends com.activeandroid.app.Application {
 	private static Context context;
-	
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,6 +26,7 @@ public class FlickrApplication extends com.activeandroid.app.Application {
             .defaultDisplayImageOptions(defaultOptions)
             .build();
         ImageLoader.getInstance().init(config);
+
     }
     
     public static FlickrClient getRestClient() {
